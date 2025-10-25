@@ -4,6 +4,7 @@ import { Button, InputOtp, useToast } from 'primevue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+document.title = "Sign In"
 const toast = useToast()
 const code = ref("")
 const route = useRoute()

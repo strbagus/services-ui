@@ -28,8 +28,8 @@ const init = async () => {
   <div class="my-5 px-3 flex justify-between items-center">
     <h1 class="text-3xl font-semibold">Pods</h1>
   </div>
-  <div class="flex flex-wrap justify-between">
-    <div v-for="kind in kinds.nodes" class="p-2 w-1/5">
+  <div class="flex flex-wrap justify-center">
+    <div v-for="kind in kinds.nodes" class="p-2 w-1/2 sm:w-1/3 lg:w-1/5">
       <Card>
         <template #content>
           <div class="text-3xl font-bold">{{ kind.count }}</div>
@@ -38,7 +38,7 @@ const init = async () => {
       </Card>
     </div>
   </div>
-  <div class="bg-white mt-5 shadow-lg">
+  <div class="px-2 mt-5 shadow-lg">
     <DataTable :value="pods.nodes" stripedRows>
       <Column header="Pod Name" field="name">
         <template #body="d">

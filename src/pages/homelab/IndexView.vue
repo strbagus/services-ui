@@ -158,7 +158,7 @@ const mergeByKey = (a, b, key = 'name') => {
     </div>
   </div>
   <div class="text-xl text-center mt-5 font-semibold">NODES</div>
-  <div class="flex flex-warp justify-evenly">
+  <div class="flex flex-wrap justify-evenly">
     <div v-for="d in mergedMetrics" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2">
       <Card>
         <template #title>

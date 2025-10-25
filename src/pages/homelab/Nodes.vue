@@ -24,7 +24,7 @@ const init = () => {
   <div class="my-5 px-3 flex justify-between items-center">
     <h1 class="text-3xl font-semibold">Nodes</h1>
   </div>
-  <div class="bg-white shadow-lg">
+  <div class="shadow-lg px-2">
     <DataTable :value="nodes.nodes">
       <Column header="Name" field="name">
         <template #body="d">
