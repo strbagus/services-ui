@@ -6,28 +6,33 @@ import { useWebSocket } from '@/composables/useWebSocket';
 import { changeUnit } from '@/utils/calc';
 
 const { messages, live } = useWebSocket(`${import.meta.env.VITE_WS_METRIC}/metrics`);
+const props = defineProps(['setLoading'])
 
 const nodes = ref({})
 const kinds = ref({})
 const pods = ref({})
 const top = ref([])
-const isLoad = true
 onMounted(() => {
   init()
 })
-const init = () => {
-  hlReq.get('top')
+const init = async () => {
+  props.setLoading(true)
+  const topPromise = hlReq.get('top')
     .then(res => top.value = res.data.nodes)
     .catch(err => console.error(`[ERROR] Fetch top failed: ${err}`))
-  hlReq.get('nodes')
+  const nodePromise = hlReq.get('nodes')
     .then(res => nodes.value = res.data)
     .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
-  hlReq.get('kinds')
+  const kindPromise = hlReq.get('kinds')
     .then(res => kinds.value = res.data)
     .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
-  hlReq.get('pods')
+  const podPromise = hlReq.get('pods')
     .then(res => pods.value = res.data)
     .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
+
+  await Promise.allSettled([topPromise, nodePromise, kindPromise, podPromise])
+    .finally(() => props.setLoading(false))
+
 }
 watch(messages, (a) => top.value = a)
 
@@ -82,12 +87,11 @@ const mergeByKey = (a, b, key = 'name') => {
 </script>
 <template>
   <div class="my-5 px-3 flex justify-between items-center">
-    <h1 class="text-3xl font-semibold">Homelab Mini Cluster</h1>
+    <h1 class="text-3xl font-semibold">Homelab Overview</h1>
     <div><i v-if="live" v-tooltip.left="'Connected to WS'" class="blink text-red-500 pi pi-circle-fill"></i></div>
   </div>
-  <div class="text-xl text-center font-semibold">OVERVIEW</div>
   <div class="flex flex-wrap justify-center">
-    <div class="w-full md:w-1/3 p-2">
+    <div class="w-full sm:w-1/2 md:w-1/3 p-2">
       <Card>
         <template #content>
           <div class="flex items-end gap-2">
@@ -99,7 +103,7 @@ const mergeByKey = (a, b, key = 'name') => {
         </template>
       </Card>
     </div>
-    <div class="w-full md:w-1/3 p-2">
+    <div class="w-full sm:w-1/2 md:w-1/3 p-2">
       <Card>
         <template #content>
           <div class="flex items-end gap-2">
@@ -133,7 +137,7 @@ const mergeByKey = (a, b, key = 'name') => {
             <div class="text-xl font-bold">Pods</div>
           </div>
           <div class="mt-3 font-semibold">
-            {{ `${pods.nodes ? pods.nodes.length : 0} pods across ${kinds.nodes ? kinds.nodes.length : 0 }
+            {{ `${pods.nodes ? pods.nodes.length : 0} pods across ${kinds.nodes ? kinds.nodes.length : 0}
             types.` }}
           </div>
         </template>
