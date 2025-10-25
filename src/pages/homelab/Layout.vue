@@ -59,7 +59,8 @@ const setLoading = (loadingState) => {
             Dashboard</div>
         </div>
         <ul class="flex-1 overflow-auto px-2 py-5">
-          <RouterLink v-for="r in homelabRoutes" :to="r.path" :key="r.path">
+          <RouterLink v-for="r in homelabRoutes" :to="r.path" :key="r.path" @click="sidenavFloat &&
+          (sidenav = false)">
             <li class="my-2 route px-3 rounded-lg py-1 text-cyan-50 duration-200" :class="route.path == r.path &&
               'active-route'"><i :class="r.icon" /> {{ r.name }}</li>
           </RouterLink>
@@ -80,9 +81,11 @@ const setLoading = (loadingState) => {
       </nav>
       <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 3px"></ProgressBar>
       <div v-else style="height: 3px"></div>
-      <main class="max-w-[1500px] mx-5">
+      <main class="max-w-[1500px] w-full mx-auto flex-1">
         <RouterView :set-loading="setLoading" />
       </main>
+      <div class="bg-neutral-100 dark:bg-neutral-900 shadow-lg py-2 text-center text-xs
+        font-semibold w-full mt-5">Copyright&copy;{{ new Date().getFullYear() }}</div>
     </div>
   </div>
 </template>

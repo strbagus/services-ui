@@ -25,6 +25,16 @@ const router = createRouter({
           name: 'homelab.index',
           component: () => import('@/pages/homelab/IndexView.vue'),
         },
+        {
+          path: 'pods',
+          name: 'homelab.pods',
+          component: () => import('@/pages/homelab/Pods.vue'),
+        },
+        {
+          path: 'nodes',
+          name: 'homelab.nodes',
+          component: () => import('@/pages/homelab/Nodes.vue'),
+        },
       ],
     },
     {
