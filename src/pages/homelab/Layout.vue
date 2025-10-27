@@ -43,6 +43,11 @@ const homelabRoutes = [
     icon: "pi pi-server",
     path: "/homelab/pods"
   },
+  {
+    name: "Services",
+    icon: "pi pi-sparkles",
+    path: "/homelab/services"
+  },
 ]
 const setLoading = (loadingState) => {
   isLoading.value = loadingState

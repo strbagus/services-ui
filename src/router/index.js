@@ -34,6 +34,11 @@ const router = createRouter({
           name: 'homelab.node',
           component: () => import('@/pages/homelab/Nodes.vue'),
         },
+        {
+          path: 'services',
+          name: 'homelab.service',
+          component: () => import('@/pages/homelab/Services.vue'),
+        },
       ],
     },
     {
