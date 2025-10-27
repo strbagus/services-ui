@@ -1,5 +1,8 @@
 export const changeUnit = (w, f, t) => {
+  !f && (f = "Bi")
+  !t && (t = "Bi")
   const d = {
+    Bi: 0,
     Ki: 1,
     Mi: 2,
     Gi: 3,
