@@ -25,11 +25,11 @@ const init = () => {
     <h1 class="text-3xl font-semibold">Nodes</h1>
   </div>
   <div class="shadow-lg px-2">
-    <DataTable :value="nodes.nodes">
+    <DataTable :value="nodes.data">
       <Column header="Name" field="name">
         <template #body="d">
           <div>
-            {{ d.data.name }} <span class="text-sm">({{ d.data.arch }})</span>
+            {{ d.data.name }}
           </div>
           <div v-if="d.data.is_control_plane">
             <Badge size="small" value="Control Plane" />
@@ -46,6 +46,7 @@ const init = () => {
       </Column>
       <Column header="About">
         <template #body="d">
+          <div class="text-sm">Architecture: <span class="font-bold">{{ d.data.arch }}</span></div>
           <div class="text-sm">Internal IP: <span class="font-bold">{{ d.data.internal_ip }}</span></div>
           <div class="text-sm">Kernel: <span class="font-bold">{{ d.data.kernel_version }}</span></div>
           <div class="text-sm">OS: <span class="font-bold">{{ d.data.os_image }}</span></div>

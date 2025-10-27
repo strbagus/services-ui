@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useWebSocket } from '@/composables/useWebSocket';
 import { changeUnit } from '@/utils/calc';
 
-const { messages, live } = useWebSocket(`${import.meta.env.VITE_WS_METRIC}/metrics`);
+const { messages, live } = useWebSocket(`${import.meta.env.VITE_WS_METRIC}/top`);
 const props = defineProps(['setLoading'])
 
 const nodes = ref({})
@@ -18,7 +18,7 @@ onMounted(() => {
 const init = async () => {
   props.setLoading(true)
   const topPromise = hlReq.get('top')
-    .then(res => top.value = res.data.nodes)
+    .then(res => top.value = res.data.data)
     .catch(err => console.error(`[ERROR] Fetch top failed: ${err}`))
   const nodePromise = hlReq.get('nodes')
     .then(res => nodes.value = res.data)
@@ -37,7 +37,7 @@ const init = async () => {
 watch(messages, (a) => top.value = a)
 
 const mergedMetrics = computed(() => {
-  return mergeByKey(nodes.value.nodes, top.value, "name")
+  return mergeByKey(nodes.value.data, top.value, "name")
 })
 
 const allCounter = computed(() => {
@@ -133,11 +133,11 @@ const mergeByKey = (a, b, key = 'name') => {
       <Card>
         <template #content>
           <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ `${pods.nodes ? pods.nodes.length : 0}` }}</div>
+            <div class="text-7xl font-bold">{{ `${pods.data ? pods.data.length : 0}` }}</div>
             <div class="text-xl font-bold">Pods</div>
           </div>
           <div class="mt-3 font-semibold">
-            {{ `${pods.nodes ? pods.nodes.length : 0} pods across ${kinds.nodes ? kinds.nodes.length : 0}
+            {{ `${pods.data ? pods.data.length : 0} pods across ${kinds.data ? kinds.data.length : 0}
             types.` }}
           </div>
         </template>
