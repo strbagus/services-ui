@@ -17,7 +17,6 @@ const router = createRouter({
     {
       path: '/homelab',
       name: 'homelab',
-      meta: { requiresAuth: true },
       component: () => import('@/pages/homelab/Layout.vue'),
       children: [
         {
@@ -27,12 +26,12 @@ const router = createRouter({
         },
         {
           path: 'pods',
-          name: 'homelab.pods',
+          name: 'homelab.pod',
           component: () => import('@/pages/homelab/Pods.vue'),
         },
         {
           path: 'nodes',
-          name: 'homelab.nodes',
+          name: 'homelab.node',
           component: () => import('@/pages/homelab/Nodes.vue'),
         },
       ],
@@ -49,18 +48,5 @@ router.resolve({
   name: 'not-found',
   params: { pathMatch: ['not', 'found'] },
 }).href
-
-router.beforeEach(async (to, _, next) => {
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    try {
-      await authReq.post('/check')
-      next()
-    } catch {
-      next({ name: 'login', query: { callback: encodeURI(to.fullPath) } })
-    }
-  } else {
-    next()
-  }
-})
 
 export default router

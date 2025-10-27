@@ -1,10 +1,11 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-export function useWebSocket(url) {
+export function useWebSocket(path) {
   const socket = ref(null)
   const messages = ref({})
   const live = ref(false)
 
+  const url = `${import.meta.env.VITE_WS_METRIC}${path}`
   const connect = () => {
     socket.value = new WebSocket(url)
 

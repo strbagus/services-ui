@@ -1,23 +1,21 @@
 <script setup>
-import { hlReq } from '@/utils/axios';
+import { useReqMetric } from '@/composables/useReqMetric';
 import { changeUnit } from '@/utils/calc';
 import { Badge, Column, DataTable } from 'primevue';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 
 const props = defineProps(['setLoading'])
-const nodes = ref({})
+const { data: nodes, fetchData: fetchNodes } = useReqMetric()
 
 document.title = "Nodes - Homelab"
 
 onMounted(() => {
+  props.setLoading(true)
   init()
 })
 const init = () => {
-  props.setLoading(true)
-  hlReq.get(`nodes`)
-    .then(res => nodes.value = res.data)
-    .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
-    .finally(_ => props.setLoading(false))
+  fetchNodes("nodes")
+    .finally(() => props.setLoading(false))
 }
 </script>
 <template>
@@ -25,7 +23,7 @@ const init = () => {
     <h1 class="text-3xl font-semibold">Nodes</h1>
   </div>
   <div class="shadow-lg px-2">
-    <DataTable :value="nodes.data">
+    <DataTable :value="nodes?.data">
       <Column header="Name" field="name">
         <template #body="d">
           <div>

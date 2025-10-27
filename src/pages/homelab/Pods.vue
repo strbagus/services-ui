@@ -1,26 +1,24 @@
 <script setup>
-import { hlReq } from '@/utils/axios';
+import { useReqMetric } from '@/composables/useReqMetric';
 import { Card, Column, DataTable } from 'primevue';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 
 document.title = "Pods - Homelab"
 
+const { data: kinds, fetchData: fetchKinds } = useReqMetric()
+const { data: pods, fetchData: fetchPods } = useReqMetric()
 const props = defineProps(['setLoading'])
-const pods = ref({})
-const kinds = ref({})
 
 onMounted(() => {
+  props.setLoading(true)
   init()
 })
+
 const init = async () => {
-  props.setLoading(true)
-  const kindPromise = hlReq.get(`kinds`)
-    .then(res => kinds.value = res.data)
-    .catch(err => console.error(`[ERROR] Fetch kinds failed: ${err}`))
-  const podPromise = hlReq.get(`pods`)
-    .then(res => pods.value = res.data)
-    .catch(err => console.error(`[ERROR] Fetch pods failed: ${err}`))
-  Promise.allSettled([kindPromise, podPromise])
+  Promise.allSettled([
+    fetchPods('pods'),
+    fetchKinds('kinds')
+  ])
     .finally(() => props.setLoading(false))
 }
 </script>
@@ -29,7 +27,7 @@ const init = async () => {
     <h1 class="text-3xl font-semibold">Pods</h1>
   </div>
   <div class="flex flex-wrap justify-center">
-    <div v-for="kind in kinds.data" class="p-2 w-1/2 sm:w-1/3 lg:w-1/5">
+    <div v-for="kind in kinds?.data" class="p-2 w-1/2 sm:w-1/3 lg:w-1/5">
       <Card>
         <template #content>
           <div class="text-3xl font-bold">{{ kind.count }}</div>
@@ -39,7 +37,7 @@ const init = async () => {
     </div>
   </div>
   <div class="px-2 mt-5 shadow-lg">
-    <DataTable :value="pods.data" stripedRows>
+    <DataTable :value="pods?.data" stripedRows>
       <Column header="Pod Name" field="name">
         <template #body="d">
           <div>

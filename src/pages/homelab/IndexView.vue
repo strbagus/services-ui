@@ -1,43 +1,36 @@
 <script setup>
-import { hlReq } from '@/utils/axios';
 import { Badge, Card } from 'primevue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useWebSocket } from '@/composables/useWebSocket';
 import { changeUnit } from '@/utils/calc';
+import { useReqMetric } from '@/composables/useReqMetric';
 
-const { messages, live } = useWebSocket(`${import.meta.env.VITE_WS_METRIC}/top`);
+const { messages, live } = useWebSocket(`/top`);
 const props = defineProps(['setLoading'])
+const { data: nodes, fetchData: fetchNodes } = useReqMetric()
+const { data: kinds, fetchData: fetchKinds } = useReqMetric()
+const { data: pods, fetchData: fetchPods } = useReqMetric()
+const { data: top, fetchData: fetchTop } = useReqMetric()
 
-const nodes = ref({})
-const kinds = ref({})
-const pods = ref({})
-const top = ref([])
 onMounted(() => {
+  props.setLoading(true)
   init()
 })
-const init = async () => {
-  props.setLoading(true)
-  const topPromise = hlReq.get('top')
-    .then(res => top.value = res.data.data)
-    .catch(err => console.error(`[ERROR] Fetch top failed: ${err}`))
-  const nodePromise = hlReq.get('nodes')
-    .then(res => nodes.value = res.data)
-    .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
-  const kindPromise = hlReq.get('kinds')
-    .then(res => kinds.value = res.data)
-    .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
-  const podPromise = hlReq.get('pods')
-    .then(res => pods.value = res.data)
-    .catch(err => console.error(`[ERROR] Fetch nodes failed: ${err}`))
-
-  await Promise.allSettled([topPromise, nodePromise, kindPromise, podPromise])
+const init = () => {
+  Promise.allSettled([
+    fetchNodes("nodes"),
+    fetchTop("top"),
+    fetchPods("pods"),
+    fetchKinds("kinds"),
+  ])
     .finally(() => props.setLoading(false))
-
 }
-watch(messages, (a) => top.value = a)
+watch(messages, (a) => {
+  top.value && (top.value.data = a)
+})
 
 const mergedMetrics = computed(() => {
-  return mergeByKey(nodes.value.data, top.value, "name")
+  return mergeByKey(nodes.value?.data, top.value?.data, "name")
 })
 
 const allCounter = computed(() => {
@@ -133,11 +126,11 @@ const mergeByKey = (a, b, key = 'name') => {
       <Card>
         <template #content>
           <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ `${pods.data ? pods.data.length : 0}` }}</div>
+            <div class="text-7xl font-bold">{{ `${pods?.data ? pods?.data.length : 0}` }}</div>
             <div class="text-xl font-bold">Pods</div>
           </div>
           <div class="mt-3 font-semibold">
-            {{ `${pods.data ? pods.data.length : 0} pods across ${kinds.data ? kinds.data.length : 0}
+            {{ `${pods?.data ? pods?.data.length : 0} pods across ${kinds?.data ? kinds?.data.length : 0}
             types.` }}
           </div>
         </template>
