@@ -65,9 +65,12 @@ router.beforeEach(async (to, _, next) => {
           callback: to.fullPath,
         },
       })
+    } else {
+      next()
     }
+  } else {
+    next()
   }
-  next()
 })
 
 export default router
