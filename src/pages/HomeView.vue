@@ -10,7 +10,7 @@ const routes = [
 ]
 </script>
 <template>
-  <div class="flex flex-col w-full min-h-dvh justify-center items-center">
+  <div class="flex flex-col w-full min-h-dvh justify-center items-center px-5">
     <h1 class="text-3xl">
       <i class="pi pi-sitemap" style="font-size: 1.4rem;"></i>
       My Services GUI
