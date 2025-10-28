@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import PrimeVue from 'primevue/config'
@@ -8,6 +9,7 @@ import { ToastService, Tooltip } from 'primevue'
 import '@/assets/tailwind.css'
 import 'primeicons/primeicons.css'
 
+const pinia = createPinia()
 const app = createApp(App)
 
 const pcs = window.localStorage.getItem('prefers-dark-mode')
@@ -20,6 +22,7 @@ if (pcs == 'true') {
     dm && window.document.documentElement.classList.add('dark-mode')
   }
 }
+app.use(pinia)
 app.use(router)
 app.use(PrimeVue, {
   theme: {

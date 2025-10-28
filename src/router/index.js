@@ -1,4 +1,4 @@
-import { authReq } from '@/utils/axios'
+import { useAuthStore } from '@/stores/useAuth'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -18,6 +18,7 @@ const router = createRouter({
       path: '/homelab',
       name: 'homelab',
       component: () => import('@/pages/homelab/Layout.vue'),
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
@@ -53,5 +54,20 @@ router.resolve({
   name: 'not-found',
   params: { pathMatch: ['not', 'found'] },
 }).href
+
+router.beforeEach(async (to, _, next) => {
+  const { checkAuth } = useAuthStore()
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!(await checkAuth())) {
+      next({
+        name: 'login',
+        query: {
+          callback: to.fullPath,
+        },
+      })
+    }
+  }
+  next()
+})
 
 export default router

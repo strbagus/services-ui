@@ -19,6 +19,7 @@
     "axios": "^1.12.2",
     "chartjs-plugin-annotation": "^3.1.0",
     "highcharts-vue": "^2.0.1",
+    "pinia": "^3.0.3",
     "primeicons": "^7.0.0",
     "primevue": "^4.4.1",
     "tailwindcss": "^4.1.15",
