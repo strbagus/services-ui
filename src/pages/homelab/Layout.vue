@@ -58,18 +58,25 @@ const setLoading = (loadingState) => {
     <Transition v-show="sidenav" name="slide">
       <aside class="max-w-[300px] w-full bg-indigo-600 dark:bg-neutral-900 shadow-2xl flex flex-col"
         :class="sidenavFloat ? 'fixed z-50 h-screen' : 'sticky top-0 h-dvh'">
-        <div class="py-5 border-b-2">
+        <div class="py-5 border-b-2 border-white">
           <h1 class="text-center font-bold text-3xl text-neutral-100">HOMELAB</h1>
           <div class="text-center text-sm mt-1 text-cyan-100 dark:text-cyan-300">Monitoring
             Dashboard</div>
         </div>
         <ul class="flex-1 overflow-auto px-2 py-5">
           <RouterLink v-for="r in homelabRoutes" :to="r.path" :key="r.path" @click="sidenavFloat &&
-          (sidenav = false)">
+            (sidenav = false)">
             <li class="my-2 route px-3 rounded-lg py-1 text-cyan-50 duration-200" :class="route.path == r.path &&
               'active-route'"><i :class="r.icon" /> {{ r.name }}</li>
           </RouterLink>
         </ul>
+        <div class="py-5 flex justify-center">
+          <RouterLink to="/">
+            <div class="text-sm border border-white text-white rounded-lg py-1 px-3 hover:border-cyan-500 duration-150">
+              <i style="font-size: 0.8rem;" class="pi pi-sitemap" />&nbsp;Tree View
+            </div>
+          </RouterLink>
+        </div>
       </aside>
     </Transition>
     <Transition v-show="sidenav && sidenavFloat" name="opacity">
@@ -86,9 +93,11 @@ const setLoading = (loadingState) => {
       </nav>
       <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 3px"></ProgressBar>
       <div v-else style="height: 3px"></div>
-      <main class="max-w-[1500px] w-full mx-auto flex-1">
-        <RouterView :set-loading="setLoading" />
-      </main>
+      <div class="max-w-[1920px] w-full  flex-1">
+        <main class="max-w-[1500px] w-full mx-auto">
+          <RouterView :set-loading="setLoading" />
+        </main>
+      </div>
       <div class="bg-neutral-100 dark:bg-neutral-900 shadow-lg py-2 text-center text-xs
         font-semibold w-full mt-5">Copyright&copy;{{ new Date().getFullYear() }}</div>
     </div>

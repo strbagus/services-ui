@@ -83,9 +83,9 @@ const mergeByKey = (a, b, key = 'name') => {
     <h1 class="text-3xl font-semibold">Homelab Overview</h1>
     <div><i v-if="live" v-tooltip.left="'Connected to WS'" class="blink text-red-500 pi pi-circle-fill"></i></div>
   </div>
-  <div class="flex flex-wrap justify-center">
+  <div class="flex flex-wrap justify-center items-stretch">
     <div class="w-full sm:w-1/2 md:w-1/3 p-2">
-      <Card>
+      <Card class="h-full">
         <template #content>
           <div class="flex items-end gap-2">
             <div class="text-7xl font-bold">{{ allCounter.nodes || 0 }}</div>
@@ -97,7 +97,7 @@ const mergeByKey = (a, b, key = 'name') => {
       </Card>
     </div>
     <div class="w-full sm:w-1/2 md:w-1/3 p-2">
-      <Card>
+      <Card class="h-full">
         <template #content>
           <div class="flex items-end gap-2">
             <div class="text-7xl font-bold">{{ allCounter.cpu_cap || 0 }}</div>
@@ -110,7 +110,7 @@ const mergeByKey = (a, b, key = 'name') => {
       </Card>
     </div>
     <div class="w-full md:w-1/3 p-2">
-      <Card>
+      <Card class="h-full">
         <template #content>
           <div class="flex items-end gap-2">
             <div class="text-7xl font-bold">{{ `${allCounter.mem_cap} GiB` }}</div>
@@ -123,7 +123,7 @@ const mergeByKey = (a, b, key = 'name') => {
       </Card>
     </div>
     <div class="w-full md:w-1/3 p-2">
-      <Card>
+      <Card class="h-full">
         <template #content>
           <div class="flex items-end gap-2">
             <div class="text-7xl font-bold">{{ `${pods?.data ? pods?.data.length : 0}` }}</div>
@@ -137,7 +137,7 @@ const mergeByKey = (a, b, key = 'name') => {
       </Card>
     </div>
     <div class="w-full md:w-1/3 p-2">
-      <Card>
+      <Card class="h-full">
         <template #content>
           <div class="flex items-end gap-2">
             <div class="text-7xl font-bold">{{ `${allCounter.stg_cap} GiB` }}</div>
@@ -151,9 +151,9 @@ const mergeByKey = (a, b, key = 'name') => {
     </div>
   </div>
   <div class="text-xl text-center mt-5 font-semibold">NODES</div>
-  <div class="flex flex-wrap justify-evenly">
+  <div class="flex flex-wrap justify-evenly items-stretch">
     <div v-for="d in mergedMetrics" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2">
-      <Card>
+      <Card class="h-full">
         <template #title>
           <div class="text-center flex items-center justify-center gap-2">{{ d.name }}
             <Badge v-if="d.roles?.includes('master')" size="small" style="text-align:

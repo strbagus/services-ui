@@ -17,7 +17,7 @@ const routes = [
     </h1>
     <div class="w-full max-w-[500px] my-5 flex flex-col gap-3">
       <RouterLink v-for="r in routes" :to="r.path">
-        <Card>
+        <Card class="border-2 border-transparent hover:border-cyan-400 duration-300">
           <template #content>
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold">{{ r.title }}</h2>
