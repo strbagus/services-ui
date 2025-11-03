@@ -35,7 +35,8 @@ const totalMemory = computed(() => {
     <h1 class="text-3xl font-semibold">Systemd Services</h1>
   </div>
   <div class="shadow-lg px-2">
-    <div class="flex justify-end mb-2">
+    <div class="flex justify-between mb-2">
+      <div>Services running on <span class="font-semibold italic text-primary">{{ services?.host }}</span></div>
       <LastFetch :datetime="services?.datetime" />
     </div>
     <DataTable :value="services?.data" striped-rows>
