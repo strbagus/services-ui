@@ -83,16 +83,15 @@ const setLoading = (loadingState) => {
       <div class="fixed w-full h-dvh bg-black opacity-80 cursor-pointer z-40" @click="sidenav = false"></div>
     </Transition>
     <div class="flex flex-col w-full duration-100">
-      <nav class="bg-white dark:bg-indigo-600 shadow-lg px-5 py-2 sticky top-0 z-30 flex justify-between">
-        <div>
+      <nav class="bg-white dark:bg-indigo-600 shadow-lg sticky top-0 z-30">
+        <div class="px-5 py-2 flex justify-between">
           <Button size="small" :icon="sidenav ? 'pi pi-align-left' : 'pi pi-bars'" @click="sidenav = !sidenav" />
-        </div>
-        <div>
           <DarkMode />
         </div>
+        <div class="h-1">
+          <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 100%"></ProgressBar>
+        </div>
       </nav>
-      <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 3px"></ProgressBar>
-      <div v-else style="height: 3px"></div>
       <div class="max-w-[1920px] w-full  flex-1">
         <main class="max-w-[1500px] w-full mx-auto">
           <RouterView :set-loading="setLoading" />
