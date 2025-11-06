@@ -1,14 +1,14 @@
 <script setup>
+import { useDarkModeStore } from '@/stores/useDarkMode';
 import { Button } from 'primevue';
-
-const toggleDarkMode = () => {
-  document.documentElement.classList.toggle('dark-mode');
-  const dm = window.document.documentElement.classList.contains('dark-mode')
-  window.localStorage.setItem('prefers-dark-mode', dm.toString())
-}
-
+import { onMounted } from 'vue';
+const darkMode = useDarkModeStore()
+const { dmToggle, init } = darkMode
+onMounted(() => {
+  init()
+})
 </script>
 
 <template>
-  <Button severity="help" @click="toggleDarkMode()" size="small" icon="pi pi-sun"> </Button>
+  <Button severity="help" @click="dmToggle" size="small" icon="pi pi-sun"> </Button>
 </template>
