@@ -17,7 +17,7 @@ const router = createRouter({
     {
       path: '/homelab',
       name: 'homelab',
-      component: () => import('@/pages/homelab/Layout.vue'),
+      component: () => import('@/components/Layout.vue'),
       meta: { requiresAuth: true },
       children: [
         {

@@ -6,6 +6,10 @@ const routes = [
   {
     title: "Homelab Monitoring",
     path: "/homelab"
+  },
+  {
+    title: "n8n",
+    path: "/n8n"
   }
 ]
 </script>
