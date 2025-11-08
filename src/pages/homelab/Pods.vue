@@ -19,9 +19,10 @@ const darkMode = useDarkModeStore()
 const { dmState } = storeToRefs(darkMode)
 onMounted(() => {
   props.setLoading(true)
-  init()
+  getData()
 })
-const init = () => {
+const getData = () => {
+  props.setLoading(true)
   Promise.allSettled([
     fetchPods('pods'),
     fetchKinds('kinds')
@@ -60,7 +61,7 @@ const GetDetail = (data) => {
   </div>
   <div class="px-2 mt-5 shadow-lg">
     <div class="flex justify-end mb-2">
-      <LastFetch :datetime="kinds?.datetime" />
+      <LastFetch :datetime="kinds?.datetime" refresh @click-event="getData"/>
     </div>
     <DataTable :value="tableData" stripedRows>
       <Column header="Pod Name" field="name">
