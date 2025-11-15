@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useToast } from 'primevue'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -15,6 +16,7 @@ export const useReqMetric = () => {
   const data = ref(null)
   const loading = ref(false)
   const error = ref(null)
+  const toast = useToast()
 
   const fetchData = async (url, method = 'get', payload = null) => {
     loading.value = true
@@ -35,6 +37,7 @@ export const useReqMetric = () => {
       if (err.status == 401) {
         router.replace({ name: 'login', query: { callback: encodeURI(route.fullPath) } })
       }
+      toast.add({ summary: 'Something Wrong!', life: 3000, severity: 'error', detail: err })
       error.value = err
     } finally {
       loading.value = false
