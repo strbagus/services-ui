@@ -1,0 +1,16 @@
+[
+	{
+		"title": "Homelab Monitoring",
+		"path": "/homelab"
+	},
+	{
+		"title": "n8n Automation Tools",
+		"path": "https://srv.gos.my.id/n8n",
+		"external": true
+	},
+	{
+		"title": "S3 Object Storage",
+		"path": "https://s3.gos.my.id/rustfs/console",
+		"external": true
+	}
+]
