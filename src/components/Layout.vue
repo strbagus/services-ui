@@ -2,7 +2,7 @@
 import { Button, ProgressBar } from 'primevue';
 import DarkMode from '@/components/DarkMode.vue';
 import { RouterView, RouterLink, useRoute } from 'vue-router';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 document.title = "Homelab Dashboard"
 const sidenav = ref(true)
 const sidenavFloat = ref(false)
@@ -29,29 +29,46 @@ onBeforeUnmount(() => {
 
 const homelabRoutes = [
   {
+    id: 1,
     name: "Overview",
     icon: "pi pi-objects-column",
     path: "/homelab"
   },
   {
+    id: 2,
+    name: "Resources",
+    icon: "pi pi-table",
+    path: "/homelab/resources"
+  },
+  {
+    id: 3,
     name: "Nodes",
     icon: "pi pi-desktop",
     path: "/homelab/nodes"
   },
   {
+    id: 4,
     name: "Pods",
     icon: "pi pi-server",
     path: "/homelab/pods"
   },
   {
+    id: 5,
     name: "Services",
     icon: "pi pi-sparkles",
     path: "/homelab/services"
+  },
+  {
+    id: 6,
+    name: "Disks",
+    icon: "pi pi-warehouse",
+    path: "/homelab/disks"
   },
 ]
 const setLoading = (loadingState) => {
   isLoading.value = loadingState
 }
+const routepath = computed(() => "/" + route.path.split("/").slice(1, 3).join("/"))
 </script>
 <template>
   <div class="flex min-h-dvh w-full">
@@ -66,7 +83,7 @@ const setLoading = (loadingState) => {
         <ul class="flex-1 overflow-auto px-2 py-5">
           <RouterLink v-for="r in homelabRoutes" :to="r.path" :key="r.path" @click="sidenavFloat &&
             (sidenav = false)">
-            <li class="my-2 route px-3 rounded-lg py-1 text-cyan-50 duration-200" :class="route.path == r.path &&
+            <li class="my-2 route px-3 rounded-lg py-1 text-cyan-50 duration-200" :class="routepath == r.path &&
               'active-route'"><i :class="r.icon" /> {{ r.name }}</li>
           </RouterLink>
         </ul>

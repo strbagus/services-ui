@@ -36,9 +36,24 @@ const router = createRouter({
           component: () => import('@/pages/homelab/Nodes.vue'),
         },
         {
+          path: 'disks',
+          name: 'homelab.disk',
+          component: () => import('@/pages/homelab/Disks.vue'),
+        },
+        {
           path: 'services',
           name: 'homelab.service',
           component: () => import('@/pages/homelab/Services.vue'),
+        },
+        {
+          path: 'resources',
+          name: 'homelab.resources',
+          component: () => import('@/pages/homelab/resources/Index.vue'),
+        },
+        {
+          path: 'resources/:category',
+          name: 'homelab.resources.category',
+          component: () => import('@/pages/homelab/resources/CategoryDynamic.vue'),
         },
       ],
     },
