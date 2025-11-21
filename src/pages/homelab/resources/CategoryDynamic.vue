@@ -12,24 +12,32 @@ import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 document.title = "Resources Category - Homelab"
 const { data: resources, fetchData: fetchResources } = useReqMetric()
+const { data: katalog, fetchData: fetchKatalog } = useReqMetric()
 const { data: detail, fetchData: fetchDetail } = useReqMetric()
 const { limit, offset, limitOptions } = usePagination()
 const route = useRoute()
 const props = defineProps(['setLoading'])
 const darkMode = useDarkModeStore()
 const { dmState } = storeToRefs(darkMode)
+const selectedTypes = ref([])
 onMounted(() => {
   props.setLoading(true)
   getData()
 })
 const getData = () => {
   props.setLoading(true)
-  fetchResources(`resources/${route.params.category}`)
+  Promise.allSettled([
+    fetchResources(`resources/${route.params.category}`),
+    fetchKatalog(`resources`)
+  ])
     .finally(() => props.setLoading(false))
 }
 const tableData = computed(() => {
   const data = resources.value?.data || []
-  const paginate = data.slice(offset.value, limit.value + offset.value)
+  const filtered = selectedTypes.value.length > 0
+    ? data.filter(d => selectedTypes.value.includes(d.kind))
+    : data
+  const paginate = filtered.slice(offset.value, limit.value + offset.value)
   return paginate
 })
 
@@ -42,25 +50,51 @@ const GetDetail = (data) => {
   fetchDetail('detail', 'post', { name: item })
     .finally(() => props.setLoading(false))
 }
+const kinds = computed(() => {
+  try {
+    const arr = resources.value?.data.map(i => i.kind)
+    const result = Object.entries(
+      arr.reduce((acc, curr) => {
+        acc[curr] = (acc[curr] || 0) + 1;
+        return acc;
+      }, {})
+    ).map(([type, count]) => ({ type, count }));
+    return result
+  } catch {
+    return []
+  }
+})
+const categories = computed(() => {
+  const result = katalog.value?.data.find(i => i.slug == route.params.category)
+  return result
+})
+const toggleType = (type) => {
+  if (selectedTypes.value.includes(type)) {
+    selectedTypes.value = selectedTypes.value.filter(i => i != type)
+  } else {
+    selectedTypes.value.push(type)
+  }
+}
 </script>
 <template>
   <div class="my-5 px-3 flex justify-between items-center">
     <div>
       <h1 class="text-3xl font-semibold">
-        <RouterLink to="/homelab/resources">Resources</RouterLink>
+        <RouterLink to="/homelab/resources">Resources:</RouterLink> {{ categories?.category }}
       </h1>
-      <h3 class="text-xl italic">{{ route.params.category }}</h3>
+      <h3 class="text-xl italic">{{ categories?.types.join(", ") }}</h3>
     </div>
   </div>
   <div class="flex flex-wrap justify-center items-stretch">
-    <!-- <div v-for="kind in kinds?.data" class="p-2 w-1/2 sm:w-1/3 lg:w-1/5">
-      <Card class="h-full">
+    <div v-for="kind in kinds" class="p-2 w-1/2 sm:w-1/3 lg:w-1/5">
+      <Card class="h-full cursor-pointer border" :class="selectedTypes.includes(kind.type) ?
+        'border-green-500' : 'border-transparent'" @click="toggleType(kind.type)">
         <template #content>
           <div class="text-3xl font-bold">{{ kind.count }}</div>
-          <div class="font-bold">{{ kind.kind }}</div>
+          <div class="font-bold">{{ kind.type }}</div>
         </template>
-</Card>
-</div> -->
+      </Card>
+    </div>
   </div>
   <div class="px-2 mt-5 shadow-lg">
     <!-- <div class="flex justify-end mb-2">

@@ -5,12 +5,11 @@ import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 import { usePagination } from '@/composables/usePagination';
 import { useReqMetric } from '@/composables/useReqMetric';
-import { Button, Card, Column, DataTable, Dialog } from 'primevue';
+import { Button, Column, DataTable, Dialog } from 'primevue';
 import { computed, onMounted, ref } from 'vue';
 import { useDarkModeStore } from '@/stores/useDarkMode';
 import { storeToRefs } from 'pinia';
 document.title = "Pods - Homelab"
-const { data: kinds, fetchData: fetchKinds } = useReqMetric()
 const { data: pods, fetchData: fetchPods } = useReqMetric()
 const { data: detail, fetchData: fetchDetail } = useReqMetric()
 const { limit, offset, limitOptions } = usePagination()
@@ -25,7 +24,6 @@ const getData = () => {
   props.setLoading(true)
   Promise.allSettled([
     fetchPods('pods'),
-    fetchKinds('kinds')
   ])
     .finally(() => props.setLoading(false))
 }
@@ -49,19 +47,9 @@ const GetDetail = (data) => {
   <div class="my-5 px-3 flex justify-between items-center">
     <h1 class="text-3xl font-semibold">Pods</h1>
   </div>
-  <div class="flex flex-wrap justify-center items-stretch">
-    <div v-for="kind in kinds?.data" class="p-2 w-1/2 sm:w-1/3 lg:w-1/5">
-      <Card class="h-full">
-        <template #content>
-          <div class="text-3xl font-bold">{{ kind.count }}</div>
-          <div class="font-bold">{{ kind.kind }}</div>
-        </template>
-      </Card>
-    </div>
-  </div>
   <div class="px-2 mt-5 shadow-lg">
     <div class="flex justify-end mb-2">
-      <LastFetch :datetime="kinds?.datetime" refresh @click-event="getData"/>
+      <LastFetch :datetime="pods?.datetime" refresh @click-event="getData"/>
     </div>
     <DataTable :value="tableData" stripedRows>
       <Column header="Pod Name" field="name">

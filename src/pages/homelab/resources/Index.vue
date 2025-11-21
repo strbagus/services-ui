@@ -21,7 +21,7 @@ const init = () => {
     <h1 class="text-3xl font-semibold">Resources</h1>
   </div>
   <div class="flex flex-wrap justify-center items-stretch">
-    <div v-for="r in resources?.data" class="p-2 w-1/2 sm:w-1/3 lg:w-1/4">
+    <div v-for="r in resources?.data" class="p-2 w-full sm:w-1/2 lg:w-1/4">
       <RouterLink :to="`/homelab/resources/${r.slug}`">
       <Card class="h-full">
         <template #content>
