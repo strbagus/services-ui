@@ -8,9 +8,10 @@ import { useReqMetric } from '@/composables/useReqMetric';
 const { messages, live } = useWebSocket(`/top`);
 const props = defineProps(['setLoading'])
 const { data: nodes, fetchData: fetchNodes } = useReqMetric()
-const { data: kinds, fetchData: fetchKinds } = useReqMetric()
 const { data: pods, fetchData: fetchPods } = useReqMetric()
 const { data: top, fetchData: fetchTop } = useReqMetric()
+const { data: services, fetchData: fetchServices } = useReqMetric()
+const { data: disks, fetchData: fetchDisks } = useReqMetric()
 
 onMounted(() => {
   props.setLoading(true)
@@ -21,7 +22,8 @@ const init = () => {
     fetchNodes("nodes"),
     fetchTop("top"),
     fetchPods("pods"),
-    fetchKinds("kinds"),
+    fetchServices("services"),
+    fetchDisks("disks")
   ])
     .finally(() => props.setLoading(false))
 }
@@ -30,7 +32,11 @@ watch(messages, (a) => {
 })
 
 const mergedMetrics = computed(() => {
-  return mergeByKey(nodes.value?.data, top.value?.data, "name")
+  const nodeTop = mergeByKey(nodes.value?.data, top.value?.data, "name")
+  return nodeTop.map(i => {
+    const d = disks.value?.data.find(di => di.hostname == i.name)
+    return { ...i, dcap: d.size, dused: d.used, dperc: d.usage }
+  })
 })
 
 const allCounter = computed(() => {
@@ -41,7 +47,8 @@ const allCounter = computed(() => {
     cpu_cap: 0,
     mem_usage: 0,
     mem_cap: 0,
-    stg_cap: 0
+    stg_cap: 0,
+    stg_used: 0
   }
   mg.forEach(i => {
     c.nodes++
@@ -49,12 +56,17 @@ const allCounter = computed(() => {
     c.cpu_cap += i.cpus
     c.mem_usage += i.mused
     c.mem_cap += i.memory
-    c.stg_cap += i.storage
+  })
+  disks.value?.data.forEach(i => {
+    c.stg_cap += i.size
+    c.stg_used += i.used
   })
   const mem_unit = "Gi"
   const mem_usage = changeUnit(c.mem_usage, mg[0]?.munit, mem_unit)
   const mem_cap = changeUnit(c.mem_cap, mg[0]?.memory_unit, mem_unit)
-  const stg_cap = changeUnit(c.stg_cap, mg[0]?.storage_unit, mem_unit)
+  const stg_cap = changeUnit(c.stg_cap, "", mem_unit)
+  const stg_used = changeUnit(c.stg_used, "", mem_unit)
+  const stg_perc = (stg_used / stg_cap * 100)?.toFixed(2) + "%"
   const result = {
     ...c,
     cpu_usage: Number(c.cpu_usage?.toFixed(2)),
@@ -63,10 +75,25 @@ const allCounter = computed(() => {
     mem_usage,
     mem_cap,
     mem_unit,
-    stg_cap
+    stg_cap,
+    stg_used,
+    stg_perc,
   }
   return result
 })
+
+const percToColor = (perc) => {
+  const int = typeof perc == 'number' ? perc : Number(perc.replace("%", ""))
+  let color = ""
+  if (int < 30) {
+    color = "rgb(0, 255, 0)"
+  } else if (int < 75) {
+    color = "rgb(255, 200, 0)"
+  } else {
+    color = "rgb(255, 0, 0)"
+  }
+  return `<span style="color: ${color}"> (${int}%) </span>`
+}
 
 const mergeByKey = (a, b, key = 'name') => {
   if (!a || !b) {
@@ -87,37 +114,37 @@ const mergeByKey = (a, b, key = 'name') => {
     <div class="w-full sm:w-1/2 md:w-1/3 p-2">
       <Card class="h-full">
         <template #content>
-          <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ allCounter.nodes || 0 }}</div>
-            <div class="text-xl font-bold">Nodes</div>
+          <div class="flex items-center">
+            <div class="bg-primary-400 dark:bg-neutral-700 rounded-2xl p-3">
+              <span class="material-symbols-outlined" style="font-size: 4rem;">dns</span>
+            </div>
+            <div class="grow px-5">
+              <div class="mb-3">
+                <span class="text-4xl font-bold">{{ allCounter.nodes || 0 }}&nbsp;</span>
+                <span class="text-xl font-bold">Nodes</span>
+              </div>
+              <span class="font-semibold">{{ allCounter.nodes || 0 }} {{ allCounter.nodes > 1 ?
+                'nodes' : 'node' }} is running.</span>
+            </div>
           </div>
-          <div class="mt-3 font-semibold">{{ allCounter.nodes || 0 }} {{ allCounter.nodes > 1 ?
-            'nodes' : 'node' }} is running.</div>
         </template>
       </Card>
     </div>
     <div class="w-full sm:w-1/2 md:w-1/3 p-2">
       <Card class="h-full">
         <template #content>
-          <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ allCounter.cpu_cap || 0 }}</div>
-            <div class="text-xl font-bold">CPUs Core</div>
-          </div>
-          <div class="mt-3 font-semibold">
-            {{ `${allCounter.cpu_usage}/${allCounter.cpu_cap} (${allCounter.cpu_perc}%)` }} cores is used.
-          </div>
-        </template>
-      </Card>
-    </div>
-    <div class="w-full md:w-1/3 p-2">
-      <Card class="h-full">
-        <template #content>
-          <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ `${allCounter.mem_cap} GiB` }}</div>
-            <div class="text-xl font-bold">Memory</div>
-          </div>
-          <div class="mt-3 font-semibold">
-            {{ `${allCounter.mem_usage}/${allCounter.mem_cap} GiB (${allCounter.mem_perc}%)` }} memory is used.
+          <div class="flex items-center">
+            <div class="bg-primary-400 dark:bg-neutral-700 rounded-2xl p-3">
+              <span class="material-symbols-outlined" style="font-size: 4rem;">memory</span>
+            </div>
+            <div class="grow px-5">
+              <div class="mb-3">
+                <span class="text-4xl font-bold">{{ allCounter.cpu_cap || 0 }}&nbsp;</span>
+                <span class="text-xl font-bold">CPU Core</span>
+              </div>
+              <span class="font-semibold">{{ `${allCounter.cpu_usage}/${allCounter.cpu_cap}`
+              }}<span v-html="percToColor(allCounter.cpu_perc)"></span>a cores is used.</span>
+            </div>
           </div>
         </template>
       </Card>
@@ -125,13 +152,18 @@ const mergeByKey = (a, b, key = 'name') => {
     <div class="w-full md:w-1/3 p-2">
       <Card class="h-full">
         <template #content>
-          <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ `${pods?.data ? pods?.data.length : 0}` }}</div>
-            <div class="text-xl font-bold">Pods</div>
-          </div>
-          <div class="mt-3 font-semibold">
-            {{ `${pods?.data ? pods?.data.length : 0} pods across ${kinds?.data ? kinds?.data.length : 0}
-            types.` }}
+          <div class="flex items-center">
+            <div class="bg-primary-400 dark:bg-neutral-700 rounded-2xl p-3">
+              <span class="material-symbols-outlined" style="font-size: 4rem;">memory_alt</span>
+            </div>
+            <div class="grow px-5">
+              <div class="mb-3">
+                <span class="text-4xl font-bold">{{ `${allCounter.mem_cap} GiB` }}&nbsp;</span>
+                <span class="text-xl font-bold">Memory</span>
+              </div>
+              <span class="font-semibold">{{ `${allCounter.mem_usage}/${allCounter.mem_cap} GiB` }}
+                <span v-html="percToColor(allCounter.mem_perc)"></span> memory is used.</span>
+            </div>
           </div>
         </template>
       </Card>
@@ -139,12 +171,58 @@ const mergeByKey = (a, b, key = 'name') => {
     <div class="w-full md:w-1/3 p-2">
       <Card class="h-full">
         <template #content>
-          <div class="flex items-end gap-2">
-            <div class="text-7xl font-bold">{{ `${allCounter.stg_cap} GiB` }}</div>
-            <div class="text-xl font-bold">Total Disk</div>
+          <div class="flex items-center">
+            <div class="bg-primary-400 dark:bg-neutral-700 rounded-2xl p-3">
+              <span class="material-symbols-outlined" style="font-size: 4rem;">host</span>
+            </div>
+            <div class="grow px-5">
+              <div class="mb-3">
+                <span class="text-4xl font-bold">{{ `${pods?.data ? pods?.data.length : 0}` }}&nbsp;</span>
+                <span class="text-xl font-bold">Pod</span>
+              </div>
+              <span class="font-semibold">{{pods?.data.filter(i => i.status == 'Running').length}}/{{ pods?.data.length
+                }}
+                Pod is
+                Running.</span>
+            </div>
           </div>
-          <div class="mt-3 font-semibold">
-            {{ `${allCounter.stg_cap} GiB disk capacity across ${allCounter.nodes} nodes.` }}
+        </template>
+      </Card>
+    </div>
+    <div class="w-full md:w-1/3 p-2">
+      <Card class="h-full">
+        <template #content>
+          <div class="flex items-center">
+            <div class="bg-primary-400 dark:bg-neutral-700 rounded-2xl p-3">
+              <span class="material-symbols-outlined" style="font-size: 4rem;">hard_disk</span>
+            </div>
+            <div class="grow px-5">
+              <div class="mb-3">
+                <span class="text-4xl font-bold">{{ `${allCounter.stg_cap} GiB` }}&nbsp;</span>
+                <span class="text-xl font-bold">Storage</span>
+              </div>
+              <span class="font-semibold">{{ `${allCounter.stg_used}/${allCounter.stg_cap} GiB` }}
+                <span v-html="percToColor(allCounter.stg_perc)"></span> storage is used.</span>
+            </div>
+          </div>
+        </template>
+      </Card>
+    </div>
+    <div class="w-full md:w-1/3 p-2">
+      <Card class="h-full">
+        <template #content>
+          <div class="flex items-center">
+            <div class="bg-primary-400 dark:bg-neutral-700 rounded-2xl p-3">
+              <span class="material-symbols-outlined" style="font-size: 4rem;">dynamic_form</span>
+            </div>
+            <div class="grow px-5">
+              <div class="mb-3">
+                <span class="text-4xl font-bold">{{ services?.data.length }}&nbsp;</span>
+                <span class="text-xl font-bold">Systemd</span>
+              </div>
+              <span class="font-semibold">{{services?.data.filter(i => i.is_active).length}}/{{ services?.data.length
+              }} systemd services is running.</span>
+            </div>
           </div>
         </template>
       </Card>
@@ -162,11 +240,12 @@ const mergeByKey = (a, b, key = 'name') => {
         </template>
         <template #content>
           <div class="font-semibold">{{ `CPU: ${(d.cused / 1000).toFixed(2)} /
-            ${d.cpus} cores (${d.cperc}%)` }}</div>
+            ${d.cpus} cores` }}<span v-html="percToColor(d.cperc)"></span></div>
           <div class="font-semibold">{{ `MEM: ${changeUnit(d.mused, d.munit, "Gi").toFixed(2)} / ${changeUnit(d.memory,
-            d.memory_unit, "Gi")} GiB
-            (${d.mperc}%)` }}</div>
-          <div class="font-semibold">{{ `Disk Cap: ${changeUnit(d.storage, d.storage_unit, "Gi")} GiB` }}</div>
+            d.memory_unit, "Gi")} GiB` }}<span v-html="percToColor(d.mperc)"></span></div>
+          <div class="font-semibold">{{ `STG: ${changeUnit(d.dused, "", "Gi")} / ${changeUnit(d.dcap, "", "Gi")} GiB`
+          }}<span v-html="percToColor(d.dperc)"></span>
+          </div>
           <hr class="my-2" />
           <div class="text-sm">{{ `Internal IP: ${d.internal_ip}` }}</div>
           <div class="text-sm">{{ `Kernel: ${d.kernel_version}` }}</div>
@@ -187,3 +266,4 @@ const mergeByKey = (a, b, key = 'name') => {
   }
 }
 </style>
+<!-- <style src="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=home&display=block" /> -->
