@@ -10,5 +10,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <Button severity="help" @click="dmToggle" size="small" icon="pi pi-sun"> </Button>
+  <Button @click="dmToggle" size="small" icon="pi pi-sun"> </Button>
 </template>
