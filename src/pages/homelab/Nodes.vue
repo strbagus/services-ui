@@ -13,6 +13,7 @@ import { computed, onMounted, ref } from 'vue';
 const props = defineProps(['setLoading'])
 const { data: nodes, fetchData: fetchNodes } = useReqMetric()
 const { data: detail, fetchData: fetchDetail } = useReqMetric()
+const { data: disks, fetchData: fetchDisks } = useReqMetric()
 const { limit, offset, limitOptions } = usePagination()
 const darkMode = useDarkModeStore()
 const { dmState } = storeToRefs(darkMode)
@@ -22,22 +23,45 @@ onMounted(() => {
   init()
 })
 const init = () => {
-  fetchNodes("nodes")
+  Promise.allSettled([
+    fetchNodes("nodes"),
+    fetchDisks("disks")
+  ])
     .finally(() => props.setLoading(false))
 }
+
+const comNodes = computed(() => {
+  const n = nodes.value?.data ?? []
+  const d = disks.value?.data ?? []
+
+  return n.map((ni) => {
+    const vd = d.find((di) => di.hostname === ni.name)
+    return {
+      ...ni,
+      disk: vd ?? null
+    }
+  })
+})
+
 const totals = computed(() => {
   const result = {
     cpu: 0,
     ram: 0,
-    storage: 0
+    storage: 0,
+    storage_used: 0
   }
-  if (nodes.value && nodes.value.data.length > 0) {
-    nodes.value.data.forEach((i) => {
-      result.cpu += i.cpus
-      result.ram += i.memory
-      result.storage += i.storage
-    })
+
+  if (comNodes.value.length === 0) {
+    return result
   }
+
+  comNodes.value.forEach((i) => {
+    result.cpu += i.cpus ?? 0
+    result.ram += i.memory ?? 0
+    result.storage += i.storage ?? 0
+    result.storage_used += i.disk?.used ?? 0
+  })
+
   return result
 })
 const isDetailOpen = ref(false)
@@ -58,7 +82,7 @@ const GetDetail = (data) => {
     <div class="flex justify-end mb-2">
       <LastFetch :datetime="nodes?.datetime" />
     </div>
-    <DataTable :value="nodes?.data" striped-rows>
+    <DataTable :value="comNodes" striped-rows>
       <Column header="Name" field="name">
         <template #body="d">
           <div>
@@ -75,7 +99,10 @@ const GetDetail = (data) => {
         <template #body="d">{{ changeUnit(d.data?.memory, d.data?.memory_unit, "Gi") }} GiB</template>
       </Column>
       <Column header="Storage" field="storage">
-        <template #body="d">{{ changeUnit(d.data?.storage, d.data?.storage_unit, "Gi") }} GiB</template>
+        <template #body="d">
+          {{ changeUnit(d.data?.disk.used, '', "Gi") }} /
+          {{ changeUnit(d.data?.storage, d.data?.storage_unit, "Gi") }}
+          GiB</template>
       </Column>
       <Column header="About">
         <template #body="d">
@@ -87,7 +114,8 @@ const GetDetail = (data) => {
       </Column>
       <Column header="">
         <template #body="d">
-          <Button v-tooltip.bottom="'Show Detail'" size="small" severity="info" icon="pi pi-eye" @click="GetDetail(d.data)"></Button>
+          <Button v-tooltip.bottom="'Show Detail'" size="small" severity="info" icon="pi pi-eye"
+            @click="GetDetail(d.data)"></Button>
         </template>
       </Column>
       <ColumnGroup type="footer">
@@ -95,8 +123,8 @@ const GetDetail = (data) => {
           <Column footer="Total:" footer-style="text-align:right" />
           <Column :footer="totals.cpu" />
           <Column :footer="`${changeUnit(totals.ram, nodes?.data[0].memory_unit, 'Gi')} GiB`" />
-          <Column :footer="`${changeUnit(totals.storage, nodes?.data[0].storage_unit,
-'Gi')} GiB`" :colspan="3" />
+          <Column :footer="`${changeUnit(totals.storage_used, '', 'Gi')} /
+            ${changeUnit(totals.storage, nodes?.data[0].storage_unit, 'Gi')} GiB`" :colspan="3" />
         </Row>
       </ColumnGroup>
       <template #footer>

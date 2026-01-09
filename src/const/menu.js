@@ -17,17 +17,7 @@ export const homelabRoutes = [
         label: 'Nodes',
         icon: 'pi pi-desktop',
         route: '/homelab/nodes',
-      },
-      {
-        label: 'Pods',
-        icon: 'pi pi-server',
-        route: '/homelab/pods',
-      },
-      {
-        label: 'Disks',
-        icon: 'pi pi-warehouse',
-        route: '/homelab/disks',
-      },
+      }
     ],
   },
   {

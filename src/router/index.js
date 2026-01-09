@@ -26,19 +26,9 @@ const router = createRouter({
           component: () => import('@/pages/homelab/IndexView.vue'),
         },
         {
-          path: 'pods',
-          name: 'homelab.pod',
-          component: () => import('@/pages/homelab/Pods.vue'),
-        },
-        {
           path: 'nodes',
           name: 'homelab.node',
           component: () => import('@/pages/homelab/Nodes.vue'),
-        },
-        {
-          path: 'disks',
-          name: 'homelab.disk',
-          component: () => import('@/pages/homelab/Disks.vue'),
         },
         {
           path: 'services',
