@@ -32,7 +32,7 @@ const isExternal = computed(() => props.item?.route?.includes("http"))
 <template>
   <component :is="item.route && !isExternal ? RouterLink
     : isExternal ? 'a'
-      : 'div'" v-bind="isExternal
+      : 'a'" v-bind="isExternal
         ? { href: item.route, target: '_blank' }
         : item.route && !isExternal
           ? { to: item.route }
